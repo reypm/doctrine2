@@ -27,6 +27,7 @@ use Doctrine\ORM\Query\QueryException;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query\ParameterTypeInferer;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Utility\HierarchyDiscriminatorResolver;
 
 /**
  * A Query object represents a DQL query.
@@ -162,7 +163,7 @@ final class Query extends AbstractQuery
     /**
      * The maximum number of results to return (the "limit").
      *
-     * @var integer
+     * @var integer|null
      */
     private $_maxResults = null;
 
@@ -398,6 +399,10 @@ final class Query extends AbstractQuery
                 $value = $value->getMetadataValue($rsm->metadataParameterMapping[$key]);
             }
 
+            if (isset($rsm->discriminatorParameters[$key]) && $value instanceof ClassMetadata) {
+                $value = array_keys(HierarchyDiscriminatorResolver::resolveDiscriminatorsForClass($value, $this->_em));
+            }
+
             $value = $this->processParameterValue($value);
             $type  = ($parameter->getValue() === $value)
                 ? $parameter->getType()
@@ -623,7 +628,7 @@ final class Query extends AbstractQuery
     /**
      * Sets the maximum number of results to retrieve (the "limit").
      *
-     * @param integer $maxResults
+     * @param integer|null $maxResults
      *
      * @return Query This query object.
      */
@@ -639,7 +644,7 @@ final class Query extends AbstractQuery
      * Gets the maximum number of results the query object was set to retrieve (the "limit").
      * Returns NULL if {@link setMaxResults} was not applied to this query.
      *
-     * @return integer Maximum number of results.
+     * @return integer|null Maximum number of results.
      */
     public function getMaxResults()
     {

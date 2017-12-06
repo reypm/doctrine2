@@ -107,7 +107,7 @@ class QueryBuilder
     /**
      * The maximum number of results to retrieve.
      *
-     * @var integer
+     * @var integer|null
      */
     private $_maxResults = null;
 
@@ -532,26 +532,15 @@ class QueryBuilder
      */
     public function setParameter($key, $value, $type = null)
     {
-        $filteredParameters = $this->parameters->filter(
-            function ($parameter) use ($key)
-            {
-                /* @var Query\Parameter $parameter */
-                // Must not be identical because of string to integer conversion
-                return ($key == $parameter->getName());
-            }
-        );
+        $existingParameter = $this->getParameter($key);
 
-        if (count($filteredParameters)) {
-            /* @var Query\Parameter $parameter */
-            $parameter = $filteredParameters->first();
-            $parameter->setValue($value, $type);
+        if ($existingParameter !== null) {
+            $existingParameter->setValue($value, $type);
 
             return $this;
         }
 
-        $parameter = new Query\Parameter($key, $value, $type);
-
-        $this->parameters->add($parameter);
+        $this->parameters->add(new Query\Parameter($key, $value, $type));
 
         return $this;
     }
@@ -614,15 +603,14 @@ class QueryBuilder
     public function getParameter($key)
     {
         $filteredParameters = $this->parameters->filter(
-            function ($parameter) use ($key)
-            {
-                /* @var Query\Parameter $parameter */
-                // Must not be identical because of string to integer conversion
-                return ($key == $parameter->getName());
+            function (Query\Parameter $parameter) use ($key) : bool {
+                $parameterName = $parameter->getName();
+
+                return $key === $parameterName || (string) $key === (string) $parameterName;
             }
         );
 
-        return count($filteredParameters) ? $filteredParameters->first() : null;
+        return ! $filteredParameters->isEmpty() ? $filteredParameters->first() : null;
     }
 
     /**
@@ -653,7 +641,7 @@ class QueryBuilder
     /**
      * Sets the maximum number of results to retrieve (the "limit").
      *
-     * @param integer $maxResults The maximum number of results to retrieve.
+     * @param integer|null $maxResults The maximum number of results to retrieve.
      *
      * @return self
      */
@@ -668,7 +656,7 @@ class QueryBuilder
      * Gets the maximum number of results the query object was set to retrieve (the "limit").
      * Returns NULL if {@link setMaxResults} was not applied to this query builder.
      *
-     * @return integer Maximum number of results.
+     * @return integer|null Maximum number of results.
      */
     public function getMaxResults()
     {
@@ -1441,12 +1429,12 @@ class QueryBuilder
         $queryPart = $this->getDQLPart($queryPartName);
 
         if (empty($queryPart)) {
-            return (isset($options['empty']) ? $options['empty'] : '');
+            return ($options['empty'] ?? '');
         }
 
-        return (isset($options['pre']) ? $options['pre'] : '')
+        return ($options['pre'] ?? '')
              . (is_array($queryPart) ? implode($options['separator'], $queryPart) : $queryPart)
-             . (isset($options['post']) ? $options['post'] : '');
+             . ($options['post'] ?? '');
     }
 
     /**
