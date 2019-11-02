@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\ORM\Functional\Ticket;
 
 use Doctrine\Tests\Models\CMS\CmsUser;
@@ -19,7 +21,7 @@ final class GH6699Test extends OrmFunctionalTestCase
 
     public function testMixedParametersWithZeroNumber() : void
     {
-        $query = $this->_em->createQueryBuilder()
+        $query = $this->em->createQueryBuilder()
                            ->select('u')
                            ->from(CmsUser::class, 'u')
                            ->andWhere('u.username = :username')
@@ -38,7 +40,7 @@ final class GH6699Test extends OrmFunctionalTestCase
 
     public function testMixedParametersWithZeroNumberOnQueryBuilder() : void
     {
-        $query = $this->_em->createQueryBuilder()
+        $query = $this->em->createQueryBuilder()
                            ->select('u')
                            ->from(CmsUser::class, 'u')
                            ->andWhere('u.username = :username')

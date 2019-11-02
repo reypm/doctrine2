@@ -1,5 +1,5 @@
 Doctrine Query Language
-===========================
+=======================
 
 DQL stands for Doctrine Query Language and is an Object
 Query Language derivative that is very similar to the Hibernate
@@ -17,7 +17,6 @@ querying that storage to pick a certain subset of your objects.
     and column names or join arbitrary tables together in a query. You
     need to think about DQL as a query language for your object model,
     not for your relational schema.
-
 
 DQL is case in-sensitive, except for namespace, class and field
 names, which are case sensitive.
@@ -58,7 +57,6 @@ Here is an example that selects all users with an age > 20:
     $users = $query->getResult();
 
 Lets examine the query:
-
 
 -  ``u`` is a so called identification variable or alias that
    refers to the ``MyProject\Model\User`` class. By placing this alias
@@ -103,15 +101,15 @@ their inclusion in the SELECT clause.
 
 In this case, the result will be an array of arrays.  In the example
 above, each element of the result array would be an array of the
-scalar name and address values. 
+scalar name and address values.
 
-You can select scalars from any entity in the query. 
+You can select scalars from any entity in the query.
 
 **Mixed**
 
 .. code-block:: sql
 
-    ``SELECT u, p.quantity FROM Users u...``
+    SELECT u, p.quantity FROM Users u...
 
 Here, the result will again be an array of arrays, with each element
 being an array made up of a User object and the scalar value
@@ -130,7 +128,6 @@ multiple FROM clauses.
     ``u`` is not part of the SELECT
 
     Doctrine throws an exception if you violate this constraint.
-
 
 Joins
 ~~~~~
@@ -180,15 +177,14 @@ not need to lazy load the association with another query.
 
     Doctrine allows you to walk all the associations between
     all the objects in your domain model. Objects that were not already
-    loaded from the database are replaced with lazy load proxy
-    instances. Non-loaded Collections are also replaced by lazy-load
+    loaded from the database are replaced with lazy loading proxy
+    instances. Non-loaded Collections are also replaced by lazy-loading
     instances that fetch all the contained objects upon first access.
-    However relying on the lazy-load mechanism leads to many small
+    However relying on the lazy-loading mechanism leads to many small
     queries executed against the database, which can significantly
     affect the performance of your application. **Fetch Joins** are the
     solution to hydrate most or all of the entities that you need in a
     single SELECT query.
-
 
 Named and Positional Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -493,6 +489,26 @@ Joins between entities without associations were not possible until version
     <?php
     $query = $em->createQuery('SELECT u FROM User u JOIN Blacklist b WITH u.email = b.email');
 
+With an arbitrary join the result differs from the joins using a mapped property.
+The result of an arbitrary join is an one dimensional array with a mix of the entity from the ``SELECT``
+and the joined entity fitting to the filtering of the query. In case of the example with ``User``
+and ``Blacklist``, it can look like this:
+
+- User
+- Blacklist
+- Blacklist
+- User
+- Blacklist
+- User
+- Blacklist
+- Blacklist
+- Blacklist
+
+In this form of join, the ``Blacklist`` entities found by the filtering in the ``WITH`` part are not fetched by an accessor
+method on ``User``, but are already part of the result. In case the accessor method for Blacklists is invoked on a User instance,
+it loads all the related ``Blacklist`` objects corresponding to this ``User``. This change of behaviour needs to be considered
+when the DQL is switched to an arbitrary join.
+
 .. note::
     The differences between WHERE, WITH and HAVING clauses may be
     confusing.
@@ -503,7 +519,6 @@ Joins between entities without associations were not possible until version
       the WITH is required, even if it is 1 = 1
     - HAVING is applied to the results of a query after
       aggregation (GROUP BY)
-
 
 Partial Object Syntax
 ^^^^^^^^^^^^^^^^^^^^^
@@ -636,7 +651,6 @@ clause and using sub-selects.
     ``EntityManager#clear()`` and retrieve new instances of any
     affected entity.
 
-
 DELETE queries
 --------------
 
@@ -657,7 +671,6 @@ The same restrictions apply for the reference of related entities.
     of the query. Additionally Deletes of specified entities are *NOT*
     cascaded to related entities even if specified in the metadata.
 
-
 Functions, Operators, Aggregates
 --------------------------------
 It is possible to wrap both fields and identification values into
@@ -670,13 +683,12 @@ DQL Functions
 The following functions are supported in SELECT, WHERE and HAVING
 clauses:
 
-
--  IDENTITY(single\_association\_path\_expression [, fieldMapping]) - Retrieve the foreign key column of association of the owning side
--  ABS(arithmetic\_expression)
+-  IDENTITY(single_association_path_expression [, fieldMapping]) - Retrieve the foreign key column of association of the owning side
+-  ABS(arithmetic_expression)
 -  CONCAT(str1, str2)
--  CURRENT\_DATE() - Return the current date
--  CURRENT\_TIME() - Returns the current time
--  CURRENT\_TIMESTAMP() - Returns a timestamp of the current date
+-  CURRENT_DATE() - Return the current date
+-  CURRENT_TIME() - Returns the current time
+-  CURRENT_TIMESTAMP() - Returns a timestamp of the current date
    and time.
 -  LENGTH(str) - Returns the length of the given string
 -  LOCATE(needle, haystack [, offset]) - Locate the first
@@ -691,8 +703,8 @@ clauses:
 -  TRIM([LEADING \| TRAILING \| BOTH] ['trchar' FROM] str) - Trim
    the string by the given trim char, defaults to whitespaces.
 -  UPPER(str) - Return the upper-case of the given string.
--  DATE_ADD(date, days, unit) - Add the number of days to a given date. (Supported units are DAY, MONTH)
--  DATE_SUB(date, days, unit) - Substract the number of days from a given date. (Supported units are DAY, MONTH)
+-  DATE_ADD(date, days, unit) - Add the number of days to a given date. (Supported units are YEAR, MONTH, WEEK, DAY, HOUR, MINUTE, SECOND)
+-  DATE_SUB(date, days, unit) - Substract the number of days from a given date. (Supported units are YEAR, MONTH, WEEK, DAY, HOUR, MINUTE, SECOND)
 -  DATE_DIFF(date1, date2) - Calculate the difference in days between date1-date2.
 
 Arithmetic operators
@@ -715,7 +727,6 @@ Other Expressions
 
 DQL offers a wide-range of additional expressions that are known
 from SQL, here is a list of all the supported constructs:
-
 
 -  ``ALL/ANY/SOME`` - Used in a WHERE clause followed by a
    sub-select this works like the equivalent constructs in SQL.
@@ -803,7 +814,7 @@ what type of results to expect.
 Single Table
 ~~~~~~~~~~~~
 
-`Single Table Inheritance <http://martinfowler.com/eaaCatalog/singleTableInheritance.html>`_
+`Single Table Inheritance <https://martinfowler.com/eaaCatalog/singleTableInheritance.html>`_
 is an inheritance mapping strategy where all classes of a hierarchy
 are mapped to a single database table. In order to distinguish
 which row represents which type in the hierarchy a so-called
@@ -896,7 +907,7 @@ entities:
 Class Table Inheritance
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-`Class Table Inheritance <http://martinfowler.com/eaaCatalog/classTableInheritance.html>`_
+`Class Table Inheritance <https://martinfowler.com/eaaCatalog/classTableInheritance.html>`_
 is an inheritance mapping strategy where each class in a hierarchy
 is mapped to several tables: its own table and the tables of all
 parent classes. The table of a child class is linked to the table
@@ -941,7 +952,6 @@ you'll notice some differences:
     ) ENGINE = InnoDB;
     ALTER TABLE Employee ADD FOREIGN KEY (id) REFERENCES Person(id) ON DELETE CASCADE
 
-
 -  The data is split between two tables
 -  A foreign key exists between the two tables
 
@@ -956,7 +966,6 @@ automatically for you:
            p0_.discr AS discr3
     FROM Employee e1_ INNER JOIN Person p0_ ON e1_.id = p0_.id
     WHERE p0_.name = ?
-
 
 The Query class
 ---------------
@@ -988,7 +997,6 @@ mode specifies a particular way in which a SQL result set is
 transformed. Each hydration mode has its own dedicated method on
 the Query class. Here they are:
 
-
 -  ``Query#getResult()``: Retrieves a collection of objects. The
    result is either a plain collection of objects (pure) or an array
    where the objects are nested in the result rows (mixed).
@@ -1007,8 +1015,6 @@ the Query class. Here they are:
         An array graph can differ from the corresponding object
         graph in certain scenarios due to the difference of the identity
         semantics between arrays and objects.
-
-
 
 -  ``Query#getScalarResult()``: Retrieves a flat/rectangular result
    set of scalar values that can contain duplicate data. The
@@ -1087,12 +1093,10 @@ clause, we get a mixed result.
 
 Conventions for mixed results are as follows:
 
-
 -  The object fetched in the FROM clause is always positioned with the key '0'.
 -  Every scalar without a name is numbered in the order given in the query, starting with 1.
 -  Every aliased scalar is given with its alias-name as the key. The case of the name is kept.
 -  If several objects are fetched from the FROM clause they alternate every row.
-
 
 Here is how the result could look like:
 
@@ -1133,7 +1137,6 @@ will return the rows iterating the different top-level entities.
         [2] => Object (User)
         [3] => Object (Group)
 
-
 Hydration Modes
 ~~~~~~~~~~~~~~~
 
@@ -1143,11 +1146,10 @@ make best use of the different result formats:
 
 The constants for the different hydration modes are:
 
-
--  Query::HYDRATE\_OBJECT
--  Query::HYDRATE\_ARRAY
--  Query::HYDRATE\_SCALAR
--  Query::HYDRATE\_SINGLE\_SCALAR
+-  ``Query::HYDRATE_OBJECT``
+-  ``Query::HYDRATE_ARRAY``
+-  ``Query::HYDRATE_SCALAR``
+-  ``Query::HYDRATE_SINGLE_SCALAR``
 
 Object Hydration
 ^^^^^^^^^^^^^^^^
@@ -1172,7 +1174,7 @@ why we are listing as many of the assumptions here for reference:
 - If an object is already in memory from a previous query of any kind, then
   then the previous object is used, even if the database may contain more
   recent data. Data from the database is discarded. This even happens if the
-  previous object is still an unloaded proxy. 
+  previous object is still an unloaded proxy.
 
 This list might be incomplete.
 
@@ -1211,9 +1213,8 @@ object graph you can use scalar hydration:
 The following assumptions are made about selected fields using
 Scalar Hydration:
 
-
 1. Fields from classes are prefixed by the DQL alias in the result.
-   A query of the kind 'SELECT u.name ..' returns a key 'u\_name' in
+   A query of the kind 'SELECT u.name ..' returns a key 'u_name' in
    the result rows.
 
 Single Scalar Hydration
@@ -1247,13 +1248,14 @@ creating a class which extends ``AbstractHydrator``:
     <?php
     namespace MyProject\Hydrators;
 
+    use Doctrine\DBAL\FetchMode;
     use Doctrine\ORM\Internal\Hydration\AbstractHydrator;
 
     class CustomHydrator extends AbstractHydrator
     {
         protected function _hydrateAll()
         {
-            return $this->_stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $this->stmt->fetchAll(FetchMode::Associative);
         }
     }
 
@@ -1294,7 +1296,6 @@ Parameters
 Prepared Statements that use numerical or named wildcards require
 additional parameters to be executable against the database. To
 pass parameters to the query the following methods can be used:
-
 
 -  ``AbstractQuery::setParameter($param, $value)`` - Set the
    numerical or named wildcard to the given value.
@@ -1350,7 +1351,6 @@ Result Cache API:
     ``Doctrine\ORM\Configuration`` instance so that it is passed to
     every ``Query`` and ``NativeQuery`` instance.
 
-
 Query Hints
 ^^^^^^^^^^^
 
@@ -1360,22 +1360,21 @@ exist mostly internal query hints that are not be consumed in
 userland. However the following few hints are to be used in
 userland:
 
-
--  Query::HINT\_FORCE\_PARTIAL\_LOAD - Allows to hydrate objects
+-  ``Query::HINT_FORCE_PARTIAL_LOAD`` - Allows to hydrate objects
    although not all their columns are fetched. This query hint can be
    used to handle memory consumption problems with large result-sets
    that contain char or binary data. Doctrine has no way of implicitly
    reloading this data. Partially loaded objects have to be passed to
    ``EntityManager::refresh()`` if they are to be reloaded fully from
    the database.
--  Query::HINT\_REFRESH - This query is used internally by
+-  ``Query::HINT_REFRESH`` - This query is used internally by
    ``EntityManager::refresh()`` and can be used in userland as well.
    If you specify this hint and a query returns the data for an entity
    that is already managed by the UnitOfWork, the fields of the
    existing entity will be refreshed. In normal operation a result-set
    that loads data of an already existing entity is discarded in favor
    of the already existing entity.
--  Query::HINT\_CUSTOM\_TREE\_WALKERS - An array of additional
+-  ``Query::HINT_CUSTOM_TREE_WALKERS`` - An array of additional
    ``Doctrine\ORM\Query\TreeWalker`` instances that are attached to
    the DQL query parsing process.
 
@@ -1396,7 +1395,6 @@ default. This also means you don't regularly need to fiddle with
 the parameters of the Query Cache, however if you do there are
 several methods to interact with it:
 
-
 -  ``Query::setQueryCacheDriver($driver)`` - Allows to set a Cache
    instance
 -  ``Query::setQueryCacheLifeTime($seconds = 3600)`` - Set lifetime
@@ -1414,7 +1412,6 @@ You can limit the number of results returned from a DQL query as
 well as specify the starting offset, Doctrine then uses a strategy
 of manipulating the select query to return only the requested
 number of results:
-
 
 -  ``Query::setMaxResults($maxResults)``
 -  ``Query::setFirstResult($offset)``
@@ -1441,7 +1438,7 @@ can mark a many-to-one or one-to-one association as fetched temporarily to batch
 
     <?php
     $query = $em->createQuery("SELECT u FROM MyProject\User u");
-    $query->setFetchMode("MyProject\User", "address", \Doctrine\ORM\Mapping\ClassMetadata::FETCH_EAGER);
+    $query->setFetchMode("MyProject\User", "address", \Doctrine\ORM\Mapping\FetchMode::EAGER);
     $query->execute();
 
 Given that there are 10 users and corresponding addresses in the database the executed queries will look something like:
@@ -1452,14 +1449,13 @@ Given that there are 10 users and corresponding addresses in the database the ex
     SELECT * FROM address WHERE id IN (1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
 .. note::
-    Changing the fetch mode during a query mostly makes sense for one-to-one and many-to-one relations. In that case, 
+    Changing the fetch mode during a query mostly makes sense for one-to-one and many-to-one relations. In that case,
     all the necessary IDs are available after the root entity (``user`` in the above example) has been loaded. So, one
     query per association can be executed to fetch all the referred-to entities (``address``).
-    
+
     For one-to-many relations, changing the fetch mode to eager will cause to execute one query **for every root entity
     loaded**. This gives no improvement over the ``lazy`` fetch mode which will also initialize the associations on
     a one-by-one basis once they are accessed.
-
 
 EBNF
 ----
@@ -1471,7 +1467,6 @@ correct syntax for a particular query should be.
 
 Document syntax:
 ~~~~~~~~~~~~~~~~
-
 
 -  non-terminals begin with an upper case character
 -  terminals begin with a lower case character
@@ -1486,10 +1481,8 @@ Document syntax:
 Terminals
 ~~~~~~~~~
 
-
 -  identifier (name, email, ...) must match ``[a-z_][a-z0-9_]*``
 -  fully_qualified_name (Doctrine\Tests\Models\CMS\CmsUser) matches PHP's fully qualified class names
--  aliased_name (CMS:CmsUser) uses two identifiers, one for the namespace alias and one for the class inside it
 -  string ('foo', 'bar''s house', '%ninja%', ...)
 -  char ('/', '\\', ' ', ...)
 -  integer (-1, 0, 1, 34, ...)
@@ -1524,7 +1517,7 @@ Identifiers
     AliasIdentificationVariable :: = identifier
 
     /* identifier that must be a class name (the "User" of "FROM User u"), possibly as a fully qualified class name or namespace-aliased */
-    AbstractSchemaName ::= fully_qualified_name | aliased_name | identifier
+    AbstractSchemaName ::= fully_qualified_name | identifier
 
     /* Alias ResultVariable declaration (the "total" of "COUNT(*) AS total") */
     AliasResultVariable = identifier
@@ -1640,7 +1633,6 @@ Conditional Expressions
                                     EmptyCollectionComparisonExpression | CollectionMemberExpression |
                                     InstanceOfExpression
 
-
 Collection Expressions
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1730,7 +1722,7 @@ QUANTIFIED/BETWEEN/COMPARISON/LIKE/NULL/EXISTS
     QuantifiedExpression     ::= ("ALL" | "ANY" | "SOME") "(" Subselect ")"
     BetweenExpression        ::= ArithmeticExpression ["NOT"] "BETWEEN" ArithmeticExpression "AND" ArithmeticExpression
     ComparisonExpression     ::= ArithmeticExpression ComparisonOperator ( QuantifiedExpression | ArithmeticExpression )
-    InExpression             ::= SingleValuedPathExpression ["NOT"] "IN" "(" (InParameter {"," InParameter}* | Subselect) ")"
+    InExpression             ::= ArithmeticExpression ["NOT"] "IN" "(" (InParameter {"," InParameter}* | Subselect) ")"
     InstanceOfExpression     ::= IdentificationVariable ["NOT"] "INSTANCE" ["OF"] (InstanceOfParameter | "(" InstanceOfParameter {"," InstanceOfParameter}* ")")
     InstanceOfParameter      ::= AbstractSchemaName | InputParameter
     LikeExpression           ::= StringExpression ["NOT"] "LIKE" StringPrimary ["ESCAPE" char]
@@ -1770,5 +1762,4 @@ Functions
             "LOWER" "(" StringPrimary ")" |
             "UPPER" "(" StringPrimary ")" |
             "IDENTITY" "(" SingleValuedAssociationPathExpression {"," string} ")"
-
 

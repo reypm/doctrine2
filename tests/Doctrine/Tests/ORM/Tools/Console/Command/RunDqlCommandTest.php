@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\ORM\Tools\Console\Command;
 
 use Doctrine\ORM\Tools\Console\Command\RunDqlCommand;
@@ -9,6 +11,7 @@ use Doctrine\Tests\OrmFunctionalTestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Tester\CommandTester;
+use function trim;
 
 /**
  * Tests for {@see \Doctrine\ORM\Tools\Console\Command\RunDqlCommand}
@@ -17,22 +20,16 @@ use Symfony\Component\Console\Tester\CommandTester;
  */
 class RunDqlCommandTest extends OrmFunctionalTestCase
 {
-    /**
-     * @var Application
-     */
+    /** @var Application */
     private $application;
 
-    /**
-     * @var RunDqlCommand
-     */
+    /** @var RunDqlCommand */
     private $command;
 
-    /**
-     * @var CommandTester
-     */
+    /** @var CommandTester */
     private $tester;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->useModelSet('generic');
 
@@ -41,21 +38,21 @@ class RunDqlCommandTest extends OrmFunctionalTestCase
         $this->command = new RunDqlCommand();
 
         $this->application = new Application();
-        $this->application->setHelperSet(new HelperSet(['em' => new EntityManagerHelper($this->_em)]));
+        $this->application->setHelperSet(new HelperSet(['em' => new EntityManagerHelper($this->em)]));
         $this->application->add($this->command);
 
         $this->tester = new CommandTester($this->command);
     }
 
-    public function testCommandName()
+    public function testCommandName() : void
     {
         self::assertSame($this->command, $this->application->get('orm:run-dql'));
     }
 
-    public function testWillRunQuery()
+    public function testWillRunQuery() : void
     {
-        $this->_em->persist(new DateTimeModel());
-        $this->_em->flush();
+        $this->em->persist(new DateTimeModel());
+        $this->em->flush();
 
         self::assertSame(
             0,
@@ -70,10 +67,10 @@ class RunDqlCommandTest extends OrmFunctionalTestCase
         self::assertContains(DateTimeModel::class, $this->tester->getDisplay());
     }
 
-    public function testWillShowQuery()
+    public function testWillShowQuery() : void
     {
-        $this->_em->persist(new DateTimeModel());
-        $this->_em->flush();
+        $this->em->persist(new DateTimeModel());
+        $this->em->flush();
 
         self::assertSame(
             0,

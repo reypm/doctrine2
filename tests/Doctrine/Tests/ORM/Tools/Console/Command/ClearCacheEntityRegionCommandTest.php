@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\ORM\Tools\Console\Command;
 
 use Doctrine\ORM\Tools\Console\Command\ClearCache\EntityRegionCommand;
@@ -15,17 +17,13 @@ use Symfony\Component\Console\Tester\CommandTester;
  */
 class ClearCacheEntityRegionCommandTest extends OrmFunctionalTestCase
 {
-    /**
-     * @var \Symfony\Component\Console\Application
-     */
+    /** @var Application */
     private $application;
 
-    /**
-     * @var \Doctrine\ORM\Tools\Console\Command\ClearCache\EntityRegionCommand
-     */
+    /** @var EntityRegionCommand */
     private $command;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->enableSecondLevelCache();
         parent::setUp();
@@ -33,11 +31,11 @@ class ClearCacheEntityRegionCommandTest extends OrmFunctionalTestCase
         $this->command = new EntityRegionCommand();
 
         $this->application = new Application();
-        $this->application->setHelperSet(new HelperSet(['em' => new EntityManagerHelper($this->_em)]));
+        $this->application->setHelperSet(new HelperSet(['em' => new EntityManagerHelper($this->em)]));
         $this->application->add($this->command);
     }
 
-    public function testClearAllRegion()
+    public function testClearAllRegion() : void
     {
         $command = $this->application->find('orm:clear-cache:region:entity');
         $tester  = new CommandTester($command);
@@ -53,7 +51,7 @@ class ClearCacheEntityRegionCommandTest extends OrmFunctionalTestCase
         self::assertContains(' // Clearing all second-level cache entity regions', $tester->getDisplay());
     }
 
-    public function testClearByEntityClassName()
+    public function testClearByEntityClassName() : void
     {
         $command = $this->application->find('orm:clear-cache:region:entity');
         $tester  = new CommandTester($command);
@@ -72,7 +70,7 @@ class ClearCacheEntityRegionCommandTest extends OrmFunctionalTestCase
         );
     }
 
-    public function testClearCacheEntryName()
+    public function testClearCacheEntryName() : void
     {
         $command = $this->application->find('orm:clear-cache:region:entity');
         $tester  = new CommandTester($command);
@@ -94,7 +92,7 @@ class ClearCacheEntityRegionCommandTest extends OrmFunctionalTestCase
         self::assertContains(' // "1"', $tester->getDisplay());
     }
 
-    public function testFlushRegionName()
+    public function testFlushRegionName() : void
     {
         $command = $this->application->find('orm:clear-cache:region:entity');
         $tester  = new CommandTester($command);

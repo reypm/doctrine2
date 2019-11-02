@@ -29,7 +29,6 @@ You can map indexed associations by adding:
 
     * ``indexBy`` attribute to any ``@OneToMany`` or ``@ManyToMany`` annotation.
     * ``index-by`` attribute to any ``<one-to-many />`` or ``<many-to-many />`` xml element.
-    * ``indexBy:`` key-value pair to any association defined in ``manyToMany:`` or ``oneToMany:`` YAML mapping files.
 
 The code and mappings for the Market entity looks like this:
 
@@ -40,27 +39,28 @@ The code and mappings for the Market entity looks like this:
         namespace Doctrine\Tests\Models\StockExchange;
 
         use Doctrine\Common\Collections\ArrayCollection;
+        use Doctrine\ORM\Annotation as ORM;
 
         /**
-         * @Entity
-         * @Table(name="exchange_markets")
+         * @ORM\Entity
+         * @ORM\Table(name="exchange_markets")
          */
         class Market
         {
             /**
-             * @Id @Column(type="integer") @GeneratedValue
+             * @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue
              * @var int
              */
             private $id;
 
             /**
-             * @Column(type="string")
+             * @ORM\Column(type="string")
              * @var string
              */
             private $name;
 
             /**
-             * @OneToMany(targetEntity="Stock", mappedBy="market", indexBy="symbol")
+             * @ORM\OneToMany(targetEntity="Stock", mappedBy="market", indexBy="symbol")
              * @var Stock[]
              */
             private $stocks;
@@ -107,7 +107,7 @@ The code and mappings for the Market entity looks like this:
         <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
-                                  http://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+                                  https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
 
             <entity name="Doctrine\Tests\Models\StockExchange\Market">
                 <id name="id" type="integer">
@@ -120,24 +120,6 @@ The code and mappings for the Market entity looks like this:
             </entity>
         </doctrine-mapping>
 
-    .. code-block:: yaml
-
-        Doctrine\Tests\Models\StockExchange\Market:
-          type: entity
-          id:
-            id:
-              type: integer
-              generator:
-                strategy: AUTO
-          fields:
-            name:
-              type:string
-          oneToMany:
-            stocks:
-              targetEntity: Stock
-              mappedBy: market
-              indexBy: symbol
-
 Inside the ``addStock()`` method you can see how we directly set the key of the association to the symbol,
 so that we can work with the indexed association directly after invoking ``addStock()``. Inside ``getStock($symbol)``
 we pick a stock traded on the particular market by symbol. If this stock doesn't exist an exception is thrown.
@@ -146,30 +128,34 @@ The ``Stock`` entity doesn't contain any special instructions that are new, but 
 here are the code and mappings for it:
 
 .. configuration-block::
+
     .. code-block:: php
 
         <?php
+
         namespace Doctrine\Tests\Models\StockExchange;
 
+        use Doctrine\ORM\Annotation as ORM;
+
         /**
-         * @Entity
-         * @Table(name="exchange_stocks")
+         * @ORM\Entity
+         * @ORM\Table(name="exchange_stocks")
          */
         class Stock
         {
             /**
-             * @Id @GeneratedValue @Column(type="integer")
+             * @ORM\Id @ORM\GeneratedValue @ORM\Column(type="integer")
              * @var int
              */
             private $id;
 
             /**
-             * @Column(type="string", unique=true)
+             * @ORM\Column(type="string", unique=true)
              */
             private $symbol;
 
             /**
-             * @ManyToOne(targetEntity="Market", inversedBy="stocks")
+             * @ORM\ManyToOne(targetEntity="Market", inversedBy="stocks")
              * @var Market
              */
             private $market;
@@ -193,7 +179,7 @@ here are the code and mappings for it:
         <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
-                                  http://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+                                  https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
 
             <entity name="Doctrine\Tests\Models\StockExchange\Stock">
                 <id name="id" type="integer">
@@ -204,23 +190,6 @@ here are the code and mappings for it:
                 <many-to-one target-entity="Market" field="market" inversed-by="stocks" />
             </entity>
         </doctrine-mapping>
-
-    .. code-block:: yaml
-
-        Doctrine\Tests\Models\StockExchange\Stock:
-          type: entity
-          id:
-            id:
-              type: integer
-              generator:
-                strategy: AUTO
-          fields:
-            symbol:
-              type: string
-          manyToOne:
-            market:
-              targetEntity: Market
-              inversedBy: stocks
 
 Querying indexed associations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -253,7 +222,7 @@ now query for the market:
     // $em is the EntityManager
     $marketId = 1;
     $symbol = "AAPL";
-    
+
     $market = $em->find("Doctrine\Tests\Models\StockExchange\Market", $marketId);
 
     // Access the stocks by symbol now:
@@ -291,6 +260,6 @@ Outlook into the Future
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 For the inverse side of a many-to-many associations there will be a way to persist the keys and the order
-as a third and fourth parameter into the join table. This feature is discussed in `DDC-213 <http://www.doctrine-project.org/jira/browse/DDC-213>`_
+as a third and fourth parameter into the join table. This feature is discussed in `DDC-213 <https://github.com/doctrine/orm/issues/2817>`_
 This feature cannot be implemented for one-to-many associations, because they are never the owning side.
 
